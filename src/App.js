@@ -21,6 +21,10 @@ firebase.initializeApp({
 const auth = firebase.auth();
 const firestore = firebase.firestore();
 
+// useAuthState hook - can tell if a user is signed in or not
+// if user is logged in, returns an object with id and email address
+// if logged out, user object is null
+const [user] = useAuthState(auth)
 
 function App() {
   return (
@@ -28,8 +32,36 @@ function App() {
       <header className="App-header">
  
       </header>
+
+      <section>
+        { user ? <ChatRoom /> : <SignIn />}
+      </section>
     </div>
   );
+}
+
+
+function SignIn() {
+
+  const signInWithGoogle = () => {
+
+    // initializing a GoogleAuthProvider
+    const provider = new firebase.auth.GoogleAuthProvider();
+    // triggers a popup window
+    auth.signInWithPopup(provider);
+  }
+
+  return (
+    <button onClick={signInWithGoogle}>Sign in with Google</button>
+  )
+}
+
+function SignOut() {
+  return auth.currentUser && (
+
+    <button onClick={( => auth.signOut)}>Sign Out</button>
+
+  )
 }
 
 export default App;
