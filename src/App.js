@@ -24,9 +24,11 @@ const firestore = firebase.firestore();
 // useAuthState hook - can tell if a user is signed in or not
 // if user is logged in, returns an object with id and email address
 // if logged out, user object is null
-const [user] = useAuthState(auth)
 
 function App() {
+
+  const [user] = useAuthState(auth)
+
   return (
     <div className="App">
       <header className="App-header">
@@ -59,9 +61,38 @@ function SignIn() {
 function SignOut() {
   return auth.currentUser && (
 
-    <button onClick={( => auth.signOut)}>Sign Out</button>
+    <button onClick={ () => auth.signOut}>Sign Out</button>
 
   )
+}
+
+function ChatRoom() {
+  // querying a subset of documents called messages
+  const messagesRef = firestore.collection('messages');
+  // ordering them by the time they were created at lmiting at 25
+  const query = messagesRef.orderBy('createdAt').limit(25);
+
+  // listening to any updates in realtime wiht useCollectionData hook
+  // returns an array of objects
+  // each object is the chat message in the database
+  const [messages] = useCollectionData(query, {idField: 'id'});
+
+  return (
+    <>
+    <div>
+      {/*
+        mapping over the array of messages using a ChatMessage component for each message
+        it passes the key prop with the value of id and document data as a message prop
+      */}
+      {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} /> )}
+    </div>
+    </>
+  )
+
+}
+
+function ChatMessage(props) {
+
 }
 
 export default App;
